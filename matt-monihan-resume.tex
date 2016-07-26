@@ -19,7 +19,7 @@
 \usepackage{fancyvrb} % extended verbatim environments
   \fvset{fontsize=\normalsize}% default font size for fancy-verbatim environments
 \usepackage[utf8]{inputenc}
-\usepackage[spanish]{babel}
+\usepackage[english]{babel}
 \usepackage{csquotes}
 
 % Define colors
@@ -78,25 +78,72 @@
 
 \maketitle
 
+\subsection{\textbf{Application Developer} at \shstandout{Miller Brothers Electrical Contracting} \shyears{[Apr 2015-Present]}}
+
+\begin{marginfigure}%
+  \includegraphics[width=\linewidth]{dashboard}
+  \caption{Dashboard}
+  \label{fig:dashboard}
+\end{marginfigure}
+
+\begin{marginfigure}%
+  \includegraphics[width=\linewidth]{reports_by_day}
+  \caption{Safety reports filed per day}
+  \label{fig:reporting_dashboard}
+\end{marginfigure}
+
+Miller Brothers is a electrical contractor and solar installation provider in the Philadelphia and New Jersey region doing \$100M in sales annually. I was contracted to solve 3 key problems:
+
+\begin{itemize}
+\itemsep-0.1em
+\item{On some work days, a union will send about 10 workers, some of which have never worked for the company. Collecting and verifying credentials, tax deductions and allocations is done on paper, and is an all-day process.}
+\item{Every morning a foreman must complete a safety review. It is collected by the health and safety director where it is reviewed and stored in the event of an incident.}
+\item{Finally, at the end of the day, a foreman must log the hours worked for each worker as well as the hours used for each piece of equipment. Each time sheet must be reviewed by an admin before being imported into a payroll system as well as Sage 300. There is no standardized format, so the admin has to wrangle entries coming in over the phone, via email, and on paper in various formats.}
+\end{itemize}
+\smallskip
+
+\begin{figure}%
+  \includegraphics[width=\linewidth]{safety_report_item}
+  \caption{Safety reporting interface showing multiple revisions and the ability to download as a PDF.}
+  \label{fig:safety_report_item}
+\end{figure}
+
+I delivered a Ruby on Rails application that addresses each problem through the use of a mobile-first form, and a management interface. The application integrates with Docusign, Sage 300, and a payroll system called MPay.
+
+The budget for the project was \$150k, was delivered 10\% early and has been in use for over 6 months. The company saves money by deploying new workers faster than ever, saving money on overnight shipping on paper forms, and eliminating errors due to inconsistent formats. This amounts to a savings of 45 minutes per foreman per day, which amounts to over \$60k in savings per year.
+
+
+
+
 \subsection{\textbf{Product Manager} at \shstandout{RJMetrics, Inc.} \shyears{[Dec 2015-Present]}}
 
 RJMetrics' vision is to inspire and empower data driven people. We do that by integrating with disparate data sources and consolidating it all into a data warehouse for analysis.
 
 It's my job to conduct customer interviews, host and attend industry events, and build relationships that can produce valuable market intelligence for the product team.
 
-In conjunction with my team, I provided the market analysis and design inspiration for a new product, Pipeline, that was released to the market in November of 2015.
+In conjunction with my team, I provided the analysis and design inspiration for a new product, Pipeline, that was released to the market in November of 2015.
 
 It is a pleasure to work with this team, and be surrounded by some of the smartest minds of our time.
 
 \subsection{\textbf{Lead UX Designer} at \shstandout{RJMetrics, Inc.} \shyears{[Nov 2011-Dec 2015]}}
 
-I joined the team as the 10th employee and led initiatives to improve user experience.
+I joined the team as the 10th employee and led initiatives to improve the user experience.
 
 I managed a team of developers that is solving one of the most challenging UX problems of our time: how to make sense of data. With over 1,800+ potential marketing technology data sources, our system needed to be robust to handle the different types of data sent through our pipeline, and the interface needed to be exceptionally flexible.
 
-One of my biggest projects, the report builder, entailed a team of 5 to design, architect, and execute a complete overhaul of our chart building work flow. The project took 6 months, and was measured by the time it took for both experts and novices to complete test analyses.
+One of my biggest projects, the report builder, entailed a team of 5 to design, architect, and execute a complete overhaul of our chart building work flow. The project took 6 months, and was measured by the time it took for both experts and novices to complete a battery of test analyses.
 
-We set up both formal and informal user tests throughout the development process that showed vast improvement in the time to create an analysis. In most cases, we saw improvements of about 50\%. What's most remarkable were the analyses being created that were so complex and insightful that had been just too time consuming to be produced with the previous system. In real terms, this meant an analysis that took 1 hour to complete could be completed in under 5 minutes.
+We set up both formal and informal user tests throughout the development process that showed vast improvement in the time to create an analysis. In most cases, we saw improvements of about 50\% with certain use cases with 100\%+ improvements.
+
+\begin{figure}%
+  \includegraphics[width=\linewidth]{report_builder}
+  \caption{The final report builder interface showing multiple metrics (1st time and repeat orders) being calculated and display with both instantaneous aggregate values(on the left) and those values over time.}
+  \label{fig:report_builder}
+\end{figure}
+
+\pagebreak
+
+Most remarkable were the analyses that could now be created that had been just too time consuming to be produced with the previous system. In real terms, this meant an analysis that took 1 hour to complete(begrudgingly) could be completed in under 5 minutes.
 
 Our customers, and analysts had this to say:
 
@@ -109,11 +156,9 @@ An RJMetrics Customer.
 ``As soon as prospects open our chart editor, their likelihood of converting into paying customers skyrockets.``
 Robert Moore, CEO, RJMetrics as quoted in the NYTimes
 
-
 \subsection{\textbf{Cofounder, Director of User Experience (UX)} at \shstandout{Jarvus Innovations} \shyears{[Jan 2011-Oct 2011]}}
 
-My role at Jarvus was to manage the experience for our clients'​ users from end to end. My responsibilities ranged from project management to diving in and writing code. I designed information architecture deliverables including wireframes, use cases, and activity diagrams, and then ensured that they were implemented in a way that maintained a high-quality user experience.
-
+My role at Jarvus was to manage the experience for our clients'​ users. My responsibilities ranged from project management to diving in and writing code. I designed information architecture artifacts including wire frames, use cases, and activity diagrams, and then ensured that they were implemented in a way that maintained a high-quality user experience.
 While at Jarvus I led the execution of both the Consumer Reports Mobile Shopper 2011, and the Christie's Auction Mobile Application using the cutting edge Sencha Touch Framework.
 
 \section{\mhstandout{Projects}}
