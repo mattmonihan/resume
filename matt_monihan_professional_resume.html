@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Resume</title>
+    <style>
+        @media print {
+            body { margin: 0; }
+            .no-print { display: none; }
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 8.5in;
+            margin: 0 auto;
+            padding: 0.5in;
+            background: white;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #2c5aa0;
+        }
+        
+        .name {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #2c5aa0;
+            margin-bottom: 0.5rem;
+        }
+        
+        .title {
+            font-size: 1.2rem;
+            color: #555;
+            font-style: italic;
+            margin-bottom: 0.5rem;
+        }
+        
+        .contact {
+            font-size: 1rem;
+            color: #666;
+        }
+        
+        .section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #2c5aa0;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 0.3rem;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .experience-item, .education-item, .project-item {
+            margin-bottom: 1.2rem;
+        }
+        
+        .company-name, .school-name, .project-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #2c5aa0;
+        }
+        
+        .position, .degree, .project-type {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .dates, .location {
+            color: #666;
+            font-style: italic;
+        }
+        
+        .description {
+            margin-top: 0.5rem;
+        }
+        
+        .description ul {
+            margin-left: 1.2rem;
+            margin-top: 0.3rem;
+        }
+        
+        .description li {
+            margin-bottom: 0.3rem;
+        }
+        
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+        
+        .skill-category {
+            background: #f8f9fa;
+            padding: 0.8rem;
+            border-left: 4px solid #2c5aa0;
+        }
+        
+        .skill-category h4 {
+            color: #2c5aa0;
+            margin-bottom: 0.3rem;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+        }
+        
+        .skill-list {
+            font-size: 0.9rem;
+            color: #555;
+        }
+        
+        .summary {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-left: 4px solid #2c5aa0;
+            font-style: italic;
+            margin-bottom: 1.5rem;
+        }
+        
+        @media print {
+            body { 
+                margin: 0; 
+                font-size: 10pt;
+                line-height: 1.3;
+                padding: 0.3in;
+            }
+            
+            .header {
+                margin-bottom: 1rem;
+                padding-bottom: 0.5rem;
+            }
+            
+            .name {
+                font-size: 1.8rem;
+                margin-bottom: 0.3rem;
+            }
+            
+            .title {
+                font-size: 1rem;
+                margin-bottom: 0.3rem;
+            }
+            
+            .contact {
+                font-size: 0.9rem;
+            }
+            
+            .section {
+                margin-bottom: 0.8rem;
+            }
+            
+            .section-title {
+                font-size: 1.1rem;
+                margin-bottom: 0.5rem;
+                padding-bottom: 0.2rem;
+                break-after: avoid;
+            }
+            
+            .experience-item, .education-item, .project-item {
+                margin-bottom: 0.8rem;
+            }
+            
+            .company-name, .school-name, .project-name {
+                font-size: 1rem;
+                break-after: avoid;
+            }
+            
+            .description ul {
+                margin-left: 1rem;
+                margin-top: 0.2rem;
+            }
+            
+            .description li {
+                margin-bottom: 0.2rem;
+                font-size: 9.5pt;
+            }
+            
+            .summary {
+                padding: 0.6rem;
+                margin-bottom: 1rem;
+                font-size: 9.5pt;
+                line-height: 1.3;
+                break-inside: avoid;
+            }
+            
+            .skills-grid {
+                gap: 0.5rem;
+                margin-top: 0.3rem;
+            }
+            
+            .skill-category {
+                padding: 0.5rem;
+            }
+            
+            .skill-category h4 {
+                font-size: 0.85rem;
+                margin-bottom: 0.2rem;
+                break-after: avoid;
+            }
+            
+            .skill-list {
+                font-size: 0.8rem;
+                line-height: 1.2;
+            }
+            
+            .dates, .location {
+                font-size: 0.85rem;
+            }
+            
+            .position, .degree, .project-type {
+                font-size: 0.9rem;
+            }
+            
+            /* Strategic page break only where needed */
+            /* .experience-item:nth-child(4) {
+                page-break-before: always;
+            } */
+            
+            /* Prevent orphans and widows */
+            p, li {
+                orphans: 2;
+                widows: 2;
+            }
+            
+            /* Ensure the last section doesn't create unnecessary space */
+            .section:last-child {
+                margin-bottom: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="name">Matt Monihan</div>
+        <div class="title">Automation Expert & Technical Leader</div>
+        <div class="contact">
+            Conshohocken, PA • mmonihan@gmail.com • 610.772.1458 • linkedin.com/in/mattmonihan
+        </div>
+    </div>
+
+    <div class="summary">
+        <strong>Professional Summary:</strong> Automation expert and technical leader with 15+ years of experience spanning UX design, product management, and software engineering. Currently focused on helping construction and field services companies eliminate paper-based workflows through adaptive technology solutions. Co-founded Aquifer (data sync platform) and serves as President of ResponseVault, delivering measurable client impact including 85% efficiency improvements and $45,000+ annual savings. Expertise in building platforms that integrate with existing tech stacks like Procore and Autodesk while meeting clients where they are in their digital transformation journey.
+    </div>
+
+    <div class="section">
+        <h2 class="section-title">Professional Experience</h2>
+        
+        <div class="experience-item">
+            <div class="company-name">Aquifer</div>
+            <div class="position">Co-Founder</div>
+            <div class="dates">April 2022 - Present • Philadelphia, PA</div>
+            <div class="description">
+                <ul>
+                    <li>Co-founded integration and automation platform serving ENR400 construction companies alongside Andrew Madonna (CEO/CTO)</li>
+                    <li>Built bi-directional data sync platform enabling changes in one tool to automatically update across multiple systems</li>
+                    <li>Developed native integrations with Procore, Autodesk, Sage 300, Oracle Primavera, and 30+ construction tools</li>
+                    <li>Architected data warehouse solutions using Snowflake, MS SQL, and Postgres for consolidated reporting</li>
+                    <li>Integrated with BI tools (Power BI, Tableau, Excel) enabling construction analytics and operational dashboards</li>
+                    <li>Expanded platform to serve government services and real estate sectors with custom integration solutions</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="experience-item">
+            <div class="company-name">ResponseVault - Digital Forms</div>
+            <div class="position">President</div>
+            <div class="dates">March 2020 - Present • Conshohocken, PA</div>
+            <div class="description">
+                <ul>
+                    <li>Built construction jobsite workflow platform for safety reports, time tracking, and daily logs</li>
+                    <li>Integrated deeply with Procore and Autodesk Construction Cloud, streamlining reporting without workflow disruption</li>
+                    <li>Developed adaptive technology solutions that meet clients where they are in their digital transformation</li>
+                    <li>Serves as automation expert helping construction and field services eliminate paper-based workflows</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="experience-item">
+            <div class="company-name">Hoyst</div>
+            <div class="position">Fractional CTO</div>
+            <div class="dates">September 2017 - December 2023 • Remote</div>
+            <div class="description">
+                <ul>
+                    <li>Led platform development for construction personnel movement and material delivery management</li>
+                    <li>Built subcontractor hoist reservation system with manager approval workflows</li>
+                    <li>Designed and developed using Ruby on Rails and React Native technologies</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="experience-item">
+            <div class="company-name">Voyager Scientific</div>
+            <div class="position">Founder & Software Engineer</div>
+            <div class="dates">March 2015 - Present • Conshohocken, PA</div>
+            <div class="description">
+                <ul>
+                    <li>Founded SaaS consultancy building enterprise Ruby on Rails applications focused on data and analytics</li>
+                    <li>Serve as part-time CTO for multiple clients, providing embedded technical expertise as "extension of IT department"</li>
+                    <li>Reduced client billing time by 85% (20 minutes to 3 minutes) for First Children Learning Centers, saving $45,000 annually</li>
+                    <li>Lowered market research costs by 50% for Friends and Family film platform through custom automation</li>
+                    <li>Specialize in digitizing paper processes while maintaining existing workflows, enabling gradual technology adoption</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="experience-item">
+            <div class="company-name">I'm From The Future</div>
+            <div class="position">Creative Director (Contract)</div>
+            <div class="dates">August 2016 - December 2016 • Philadelphia, PA</div>
+            <div class="description">
+                <ul>
+                    <li>Led design team to re-imagine marketing website for AvidXchange, a leading Accounts Payable Automation company</li>
+                    <li>Unified 5 different products and brands into cohesive platform experience under strict deadline</li>
+                    <li>Successfully launched unified brand experience that supported company's $300+ million VC funding rounds</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="experience-item">
+            <div class="company-name">RJMetrics, Inc. (now Magento BI)</div>
+            <div class="position">Product Manager</div>
+            <div class="dates">December 2015 - July 2016 • Philadelphia, PA</div>
+            <div class="description">
+                <ul>
+                    <li>Validated and launched Stitch Data ETL platform through 100+ customer interviews and market analysis</li>
+                    <li>Led product strategy for business intelligence platform serving SaaS and e-commerce businesses</li>
+                    <li>Identified market opportunity that led to Stitch Data becoming successful standalone company</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="experience-item">
+            <div class="company-name">RJMetrics, Inc.</div>
+            <div class="position">Lead UX Designer</div>
+            <div class="dates">November 2011 - December 2015 • Philadelphia, PA</div>
+            <div class="description">
+                <ul>
+                    <li>Joined as 10th employee and led user experience initiatives for data analytics platform</li>
+                    <li>Managed development team solving complex data visualization challenges across 1,800+ marketing technology sources</li>
+                    <li>Led 6-month Report Builder overhaul improving analysis creation time by 50-100%</li>
+                    <li>Reduced complex 1-hour analyses to under 5 minutes through intuitive interface design</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="experience-item">
+            <div class="company-name">Jarvus Innovations</div>
+            <div class="position">Cofounder, Director of User Experience</div>
+            <div class="dates">January 2009 - October 2011 • Philadelphia, PA</div>
+            <div class="description">
+                <ul>
+                    <li>Cofounded innovative development consultancy specializing in user experience design</li>
+                    <li>Led execution of Consumer Reports Mobile Shopper 2011 and Christie's Auction Mobile Application</li>
+                    <li>Pioneered mobile development using cutting-edge Sencha Touch JavaScript framework</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title">Key Projects & Platforms</h2>
+        
+        <div class="project-item">
+            <div class="project-name">Aquifer</div>
+            <div class="project-type">Construction Data Integration & Automation Platform</div>
+            <div class="description">
+                <ul>
+                    <li>Co-founded platform trusted by ENR400 construction companies for data integration and workflow automation</li>
+                    <li>Built bi-directional sync capabilities connecting 30+ construction tools including Procore, Autodesk, Sage, and Oracle</li>
+                    <li>Architected data warehouse solutions and BI integrations for consolidated construction analytics and reporting</li>
+                    <li>Expanded to serve government services and real estate sectors with custom integration development</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="project-item">
+            <div class="project-name">ResponseVault</div>
+            <div class="project-type">Construction Workflow Platform</div>
+            <div class="description">
+                <ul>
+                    <li>Built comprehensive digital forms platform for construction jobsite management</li>
+                    <li>Deep integration with Procore and Autodesk Construction Cloud</li>
+                    <li>Automates safety reports, time tracking, and daily logs without disrupting existing workflows</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="project-item">
+            <div class="project-name">Stitch Data (at RJMetrics)</div>
+            <div class="project-type">ETL Platform & Market Validation</div>
+            <div class="description">
+                <ul>
+                    <li>Validated and launched ETL platform through 100+ customer interviews</li>
+                    <li>Platform became successful standalone company after market validation</li>
+                    <li>Demonstrated expertise in product-market fit discovery and customer development</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title">Technical Expertise</h2>
+        <div class="skills-grid">
+            <div class="skill-category">
+                <h4>Data Integration & Warehousing</h4>
+                <div class="skill-list">ETL/ELT Platforms, Snowflake, MS SQL Server, PostgreSQL, Bi-directional Data Sync, API Development</div>
+            </div>
+            <div class="skill-category">
+                <h4>Construction Technology</h4>
+                <div class="skill-list">Procore Integration, Autodesk Construction Cloud, Sage 300, Oracle Primavera, Safety Reporting, Workflow Automation</div>
+            </div>
+            <div class="skill-category">
+                <h4>Backend Development</h4>
+                <div class="skill-list">Ruby on Rails, PHP, Enterprise Applications, Data Pipeline Architecture, Platform Development</div>
+            </div>
+            <div class="skill-category">
+                <h4>Business Intelligence</h4>
+                <div class="skill-list">Power BI, Tableau, Excel Integration, Data Visualization, Operational Dashboards, Analytics Automation</div>
+            </div>
+            <div class="skill-category">
+                <h4>Frontend & Mobile</h4>
+                <div class="skill-list">AngularJS, Bootstrap, Sencha Touch, React Native, UX/UI Design, Modern Web Development</div>
+            </div>
+            <div class="skill-category">
+                <h4>Leadership & Strategy</h4>
+                <div class="skill-list">Fractional CTO Services, Technical Advisory, Product Management, Market Validation, Team Management</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title">Education & Early Experience</h2>
+        <div class="education-item">
+            <div class="school-name">Drexel University - LeBow College of Business</div>
+            <div class="degree">Bachelor of Science, Business Administration</div>
+            <div class="dates">September 2005 - June 2010 • Philadelphia, PA • GPA: 3.5</div>
+            <div class="description">
+                Completed Drexel's 5-year cooperative education program including three 6-month full-time internships:
+                <ul>
+                    <li><strong>Valley Forge Asset Management:</strong> Portfolio Assistant - Financial analysis and investment research</li>
+                    <li><strong>FullSix:</strong> Web Developer - Digital marketing and web development</li>
+                    <li><strong>Medical News Investment Team:</strong> Web Developer - Healthcare technology platform development</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title">Industry Specializations</h2>
+        <div class="description">
+            <ul>
+                <li><strong>Construction & Field Services:</strong> Jobsite workflow automation, safety reporting, Procore/Autodesk integrations, personnel and material management systems, ENR400 company data integration</li>
+                <li><strong>Data Integration & Analytics:</strong> Bi-directional data sync, ETL/ELT platforms, data warehouse solutions (Snowflake, MS SQL, Postgres), BI tool integration (Power BI, Tableau)</li>
+                <li><strong>Government Services:</strong> Departmental system integration, GIS support, permit tracking, open data publishing, smart city initiatives</li>
+                <li><strong>Real Estate:</strong> Portfolio management data integration, property management tool connectivity, construction contractor data consolidation</li>
+                <li><strong>Healthcare & Entertainment:</strong> HIPAA compliance systems, clinical workflows, film industry market research platforms</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
