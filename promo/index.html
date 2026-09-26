@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Matt Monihan Promo</title>
+<style>
+@font-face{font-family:'Bebas';src:url(assets/fonts/bebas-neue-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'Mono';font-weight:500;src:url(assets/fonts/jetbrains-mono-latin-500-normal.woff2) format('woff2')}
+@font-face{font-family:'Mono';font-weight:800;src:url(assets/fonts/jetbrains-mono-latin-800-normal.woff2) format('woff2')}
+@font-face{font-family:'Inter';font-weight:600;src:url(assets/fonts/inter-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:'Inter';font-weight:900;src:url(assets/fonts/inter-latin-900-normal.woff2) format('woff2')}
+
+html,body{margin:0;padding:0;background:#000;overflow:hidden}
+#stage{position:relative;overflow:hidden;background:#000}
+#cam{position:absolute;inset:0;transform-origin:50% 50%}
+.layer{position:absolute;inset:0;pointer-events:none}
+.card{position:absolute;inset:0;display:none;overflow:hidden}
+.card.on{display:block}
+.bg{position:absolute;inset:0}
+.body{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center}
+.lines{position:relative;display:flex;flex-direction:column;align-items:center}
+.ln{font-family:'Bebas';line-height:.86;white-space:nowrap;position:relative;letter-spacing:-.005em}
+.ln .txt{position:relative;display:inline-block}
+.strike{position:absolute;left:-3%;top:44%;height:.1em;width:0;background:currentColor}
+.label,.sub{font-family:'Mono';font-weight:800;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap}
+.label .chip{display:inline-block;padding:.25em .55em;line-height:1}
+.dot{display:inline-block;width:.7em;height:.7em;border-radius:50%;margin-right:.5em;vertical-align:-.05em}
+.ghost{position:absolute;font-family:'Bebas';line-height:.8;color:transparent;white-space:nowrap}
+.photo{position:absolute;inset:0;overflow:hidden}
+.photo img{position:absolute;width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.5) brightness(1.45)}
+.photo .tint{position:absolute;inset:0;mix-blend-mode:multiply}
+.photo .dots{position:absolute;inset:0;mix-blend-mode:multiply;opacity:.55}
+.shot{position:absolute;left:50%;top:50%;transform-origin:50% 50%}
+.shot img{display:block;width:100%}
+.stream{position:absolute;inset:0;overflow:hidden}
+.stream .row{position:absolute;left:0;font-family:'Mono';font-weight:500;white-space:nowrap}
+.marq{position:absolute;left:-20%;right:-20%;top:-20%;bottom:-20%;overflow:hidden}
+.marq .row{position:absolute;left:0;font-family:'Bebas';line-height:1;white-space:nowrap;color:transparent}
+#hud{font-family:'Mono';font-weight:800;text-transform:uppercase;letter-spacing:.05em}
+#hud div{position:absolute;white-space:nowrap}
+#hud .pips span{display:inline-block;margin-left:.35em;width:.9em;height:.9em;border:.16em solid currentColor;box-sizing:border-box;vertical-align:-.12em}
+#hud .pips span.lit{background:currentColor}
+#prog{position:absolute;left:0;bottom:0;height:0;width:0}
+#flash,#fade{position:absolute;inset:0;opacity:0}
+#grain{position:absolute;inset:0;mix-blend-mode:overlay;opacity:.16;background-repeat:repeat}
+#scan{position:absolute;inset:0;opacity:.07;background:repeating-linear-gradient(0deg,#000 0 2px,transparent 2px 4px)}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="cam">
+    <div id="cards" class="layer"></div>
+  </div>
+  <div id="grain" class="layer"></div>
+  <div id="scan" class="layer"></div>
+  <div id="hud" class="layer"></div>
+  <div id="prog"></div>
+  <div id="flash" class="layer"></div>
+  <div id="fade" class="layer" style="background:#000"></div>
+</div>
+<script>
+// ---------- timing: locked to the song grid (110.06 BPM) ----------
+const P = 0.54518;          // seconds per beat
+const NB = 43;              // 4 pickup beats + 32 drop beats + 7 end beats (ends where the song's bass cuts out)
+const DUR = NB * P;         // 23.443 s
+const DROP = 4;             // beat index of the drop
+
+const q = new URLSearchParams(location.search);
+const W = +q.get('w') || 1080, H = +q.get('h') || 1080;
+const U = Math.min(W, H) / 100;          // 1u = 1% of the short side
+const PORTRAIT = H > W * 1.2, WIDE = W > H * 1.2;
+
+const C = {black:'#000000', white:'#FFFFFF', blue:'#2E5CFF', red:'#FD1528', navy:'#0A141C', ice:'#E8EEF2'};
+const TH = {
+  black:{bg:C.black, fg:C.white, ac:C.blue, hud:C.white},
+  white:{bg:C.white, fg:C.black, ac:C.blue, hud:C.black},
+  blue: {bg:C.blue,  fg:C.white, ac:C.black, hud:C.white},
+  red:  {bg:C.red,   fg:C.white, ac:C.black, hud:C.white},
+  navy: {bg:C.navy,  fg:C.white, ac:C.red,   hud:C.white},
+};
+
+// ---------- script: every entry starts on a beat ----------
+// lines: string or {t, sc (size factor), c ('fg'|'ac'|hex), strike (beat offset), outline}
+const CARDS = [
+  // pickup (breakdown, bass still sustained)
+  {k:0, n:1, th:'black', lines:['PDFS.'], label:{t:'ROBOT WORK DETECTED', dot:C.red}, enter:'punch', marq:'COPY PASTE RETYPE REPEAT '},
+  {k:1, n:1, th:'white', lines:['SPREADSHEETS.'], label:{t:'ROBOT WORK DETECTED', dot:C.red}, enter:'slamL'},
+  {k:2, n:1, th:'black', lines:['COPY.'], label:{t:'ROBOT WORK DETECTED', dot:C.red}, enter:'punch', marq:'COPY PASTE RETYPE REPEAT '},
+  {k:3, n:1, th:'red',   lines:['PASTE.'], label:{t:'ROBOT WORK DETECTED', dot:C.white}, enter:'glitch', blackout:0.13},
+  // DROP: name
+  {k:4, n:1, th:'black', photo:{zoom:[1.18,1.08]}, lines:['MATT'], enter:'punch', hit:'blue'},
+  {k:5, n:1, th:'black', photo:{zoom:[1.08,1.02]}, lines:['MONIHAN'], enter:'slamR'},
+  {k:6, n:2, th:'black', photo:{zoom:[1.02,0.96]}, lines:['MATT','MONIHAN'], enter:'glitch',
+     sub:{t:'ENTREPRENEUR · BUILDER · CONSHOHOCKEN, PA', type:true}},
+  // what he does
+  {k:8,  n:1, th:'white', lines:['I BUILD THINGS'], enter:'slamL', label:{t:'WHAT I DO'}},
+  {k:9,  n:1, th:'black', lines:['THAT MOVE'], enter:'punch', label:{t:'WHAT I DO'}, stream:true},
+  {k:10, n:2, th:'blue',  lines:['INFORMATION'], enter:'zoom', stream:true, sub:{t:'CONSTRUCTION TECH · INTEGRATION · AI'}},
+  // ventures
+  {k:12, n:1, th:'black', lines:['VOYAGER',{t:'SCIENTIFIC',c:'ac'}], ghost:'01', label:{t:'WHAT I\'M BUILDING  01/04'}, sub:{t:'DATA ENGINEERING + CUSTOM APPS'}, enter:'slamL'},
+  {k:13, n:1, th:'blue',  lines:['AQUIFER'], ghost:'02', label:{t:'WHAT I\'M BUILDING  02/04'}, sub:{t:'TWO-WAY INTEGRATION · ENR 400 BUILDERS'}, enter:'slamR'},
+  {k:14, n:1, th:'white', lines:['RESPONSE',{t:'VAULT',c:'ac'}], ghost:'03', shot:{src:'safety', rot:-7, op:.22}, label:{t:'WHAT I\'M BUILDING  03/04'}, sub:{t:'JOB SITE PDFS → DIGITAL FORMS'}, enter:'slamL'},
+  {k:15, n:1, th:'navy',  lines:['AUTOMATION',{t:'TACTICS',c:'ac'}], ghost:'04', label:{t:'WHAT I\'M BUILDING  04/04'}, logo:true, enter:'glitch'},
+  // proof 1: the Hunts Point bid
+  {k:16, n:1, th:'black', lines:[{t:'$405M', count:[0,405,v=>'$'+v+'M']}], label:{t:'JOINT-VENTURE BID'}, sub:{t:'HUNTS POINT PROPOSAL'}, enter:'punch'},
+  {k:17, n:1, th:'white', lines:[{t:'10,000+', count:[0,10000,v=>v.toLocaleString('en-US')+'+']}], label:{t:'PAGES IN THE DOC SET'}, enter:'punch'},
+  {k:18, n:1, th:'blue',  lines:['1 AI AGENT'], label:{t:'ANSWERED THE RFP'}, enter:'slamL', stream:true},
+  {k:19, n:1, th:'black', lines:['PAGE',{t:'CITED.',c:'ac'}], label:{t:'EVERY ANSWER TRACED TO ITS SOURCE'}, enter:'glitch'},
+  // proof 2: billing time
+  {k:20, n:1, th:'white', lines:['20 MIN'], label:{t:'BILLING TIME PER CASE'}, enter:'slamR'},
+  {k:21, n:1, th:'black', lines:[{t:'20 MIN',sc:.42,strike:0.02,c:'#FD1528'},{t:'3 MIN',c:'ac'}], label:{t:'BILLING TIME PER CASE'}, enter:'punch'},
+  {k:22, n:1, th:'red',   lines:['-85%'], label:{t:'BACK-OFFICE TIME'}, enter:'zoom'},
+  {k:23, n:1, th:'black', lines:[{t:'$45K', count:[0,45,v=>'$'+v+'K']},{t:'SAVED A YEAR',sc:.9}], label:{t:'FIRST CHILDREN · VOYAGER SCIENTIFIC'}, enter:'punch'},
+  // proof 3: RJMetrics
+  {k:24, n:1, th:'black', shot:{src:'rj', rot:6, op:.3}, lines:['EMPLOYEE #10'], label:{t:'RJMETRICS · PHILADELPHIA'}, enter:'slamL'},
+  {k:25, n:1, th:'white', shot:{src:'rj', rot:-5, op:.16}, lines:['1 HOUR'], label:{t:'ONE ANALYSIS, OLD REPORT BUILDER'}, enter:'slamR'},
+  {k:26, n:1, th:'blue',  lines:[{t:'1 HOUR',sc:.42,strike:0.02,c:'#000000'},'UNDER 5 MIN'], label:{t:'AFTER THE REBUILD I LED'}, enter:'punch'},
+  {k:27, n:1, th:'black', lines:['ACQUIRED.'], label:{t:'BY MAGENTO, 2016'}, enter:'glitch', hit:'white'},
+  // the method, in his words
+  {k:28, n:1, th:'white', lines:['WRITE IT','DOWN.'], label:{t:'HOW THE WORK GETS DONE'}, enter:'slamL'},
+  {k:29, n:1, th:'black', lines:['TRAIN THE','PEOPLE.'], label:{t:'HOW THE WORK GETS DONE'}, enter:'slamR'},
+  {k:30, n:1, th:'blue',  lines:['TURN ON','THE TOOLS'], label:{t:'HOW THE WORK GETS DONE'}, enter:'slamL'},
+  {k:31, n:1, th:'white', lines:[{t:'YOU ALREADY',sc:1},{t:'PAY FOR.',c:'ac'}], label:{t:'HOW THE WORK GETS DONE'}, enter:'punch'},
+  // climax
+  {k:32, n:1, th:'red',   lines:["DON'T"], enter:'punch', hit:'white', marq:'#NOROBOTWORK '},
+  {k:33, n:1, th:'white', lines:['DO'], enter:'zoom'},
+  {k:34, n:1, th:'black', lines:['ROBOT'], enter:'slamL', marq:'#NOROBOTWORK '},
+  {k:35, n:1, th:'blue',  lines:['WORK.'], enter:'glitch', strobe:true},
+  // end card (the break)
+  {k:36, n:7, th:'black', end:true},
+];
+
+// ---------- helpers ----------
+const $ = (tag, cls, parent, css) => { const e = document.createElement(tag); if (cls) e.className = cls; if (css) Object.assign(e.style, css); if (parent) parent.appendChild(e); return e; };
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const easeOut = x => 1 - Math.pow(1 - clamp(x,0,1), 4);
+const easeOutBack = x => { x = clamp(x,0,1); const c1 = 2.2, c3 = c1 + 1; return 1 + c3*Math.pow(x-1,3) + c1*Math.pow(x-1,2); };
+function rnd(seed){ let s = Math.sin(seed*127.1 + 311.7) * 43758.5453; return s - Math.floor(s); }
+const col = (c, th) => c === 'fg' || !c ? th.fg : c === 'ac' ? th.ac : c;
+
+// measure natural width of Bebas text at 100px
+const meas = $('span', null, document.body, {position:'absolute', left:'-9999px', top:'0', font:"100px 'Bebas'", whiteSpace:'nowrap', letterSpacing:'-.005em'});
+const natW = t => { meas.textContent = t; return meas.getBoundingClientRect().width; };
+
+// fit a stack of lines: each line fills the target width, the stack is capped by the height budget
+function fitLines(lines, maxW, maxH, maxLine){
+  const LH = 0.86;
+  let sizes = lines.map(l => Math.min(100 * maxW / natW(l.t), maxLine) * (l.sc || 1));
+  const tot = sizes.reduce((a,s) => a + s*LH, 0);
+  if (tot > maxH) sizes = sizes.map(s => s * maxH / tot);
+  return sizes;
+}
+
+const stage = document.getElementById('stage');
+stage.style.width = W + 'px'; stage.style.height = H + 'px';
+const cardsEl = document.getElementById('cards');
+const hud = document.getElementById('hud');
+const flash = document.getElementById('flash');
+const fade = document.getElementById('fade');
+const grain = document.getElementById('grain');
+const prog = document.getElementById('prog');
+const cam = document.getElementById('cam');
+
+// grain tiles
+const GRAIN = [];
+for (let g = 0; g < 6; g++){
+  const cv = document.createElement('canvas'); cv.width = cv.height = 220;
+  const cx = cv.getContext('2d'); const im = cx.createImageData(220,220);
+  for (let i = 0; i < im.data.length; i += 4){ const v = rnd(i*0.37 + g*1000.3) * 255; im.data[i]=im.data[i+1]=im.data[i+2]=v; im.data[i+3]=255; }
+  cx.putImageData(im,0,0); GRAIN.push(cv.toDataURL());
+}
+
+// halftone dot pattern for the photo
+const DOTS = `radial-gradient(circle at 50% 50%, rgba(0,0,0,.9) 0 ${0.18*U}px, transparent ${0.34*U}px) 0 0/${0.8*U}px ${0.8*U}px`;
+
+const TOKENS = 'RFI SUBMITTAL INVOICE TIMESHEET PAYROLL SPEC PDF ERP CRM SAFETY INSPECTION BID PUNCH-LIST CHANGE-ORDER PO GL JOB-COST DAILY-LOG PROCORE SAGE ACUMATICA SQL API WEBHOOK ETL CSV JSON'.split(' ');
+function streamRow(seed){ let s = ''; for (let i = 0; i < 40; i++) s += TOKENS[Math.floor(rnd(seed*31+i)*TOKENS.length)] + '  →  '; return s; }
+
+const IMG = {safety:'assets/img/safety_report.png', rj:'assets/img/report_builder.png'};
+
+// ---------- build the cards ----------
+function build(card){
+  const th = TH[card.th];
+  card.th_ = th;
+  const el = $('div', 'card', cardsEl); card.el = el;
+  $('div', 'bg', el, {background: th.bg});
+
+  if (card.marq){
+    const m = $('div', 'marq', el, {transform:'rotate(-8deg)'}); card.marqEl = m; card.marqRows = [];
+    const rh = (PORTRAIT ? 11 : 13) * U;
+    for (let r = 0; r < Math.ceil(H*1.5/rh)+1; r++){
+      const row = $('div', 'row', m, {top:(r*rh)+'px', fontSize:(rh*0.95)+'px', WebkitTextStroke:`${0.18*U}px ${th.fg}`, opacity:.14});
+      row.textContent = card.marq.repeat(14); card.marqRows.push(row);
+    }
+  }
+  if (card.stream){
+    const s = $('div', 'stream', el); card.streamRows = [];
+    const rh = 3.4*U;
+    for (let r = 0; r < Math.ceil(H/rh); r++){
+      const row = $('div', 'row', s, {top:(r*rh)+'px', fontSize:(1.7*U)+'px', color:th.fg, opacity:(0.12 + 0.2*rnd(r*7.7))});
+      row.textContent = streamRow(r + card.k*50); card.streamRows.push(row);
+    }
+  }
+  if (card.shot){
+    const w = (WIDE ? 0.95 : 1.25) * W;
+    const s = $('div', 'shot', el, {width:w+'px', marginLeft:(-w/2)+'px', marginTop:(-w*0.33)+'px', opacity:card.shot.op});
+    const im = $('img', null, s); im.src = IMG[card.shot.src];
+    im.style.filter = th.bg === C.white ? 'grayscale(1) contrast(1.4)' : 'grayscale(1) invert(1) contrast(1.5) brightness(1.2)';
+    card.shotEl = s;
+  }
+  if (card.photo || card.end){
+    const p = $('div', 'photo', el); card.photoEl = p;
+    const im = $('img', null, p); im.src = 'assets/img/matt.jpg';
+    im.style.objectPosition = WIDE ? '60% 40%' : '56% 30%';
+    card.photoImg = im;
+    $('div', 'tint', p, {background: C.blue});
+    $('div', 'dots', p, {background: DOTS});
+    // darken toward the text
+    $('div', null, p, {position:'absolute', inset:'0', background: card.end
+      ? 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,.05) 35%, rgba(0,0,0,.88) 68%, #000 100%)'
+      : 'linear-gradient(180deg, rgba(0,0,0,.05), rgba(0,0,0,.45))'});
+  }
+  if (card.ghost){
+    const g = $('div', 'ghost', el, {fontSize:(PORTRAIT? 70 : 62)*U+'px', WebkitTextStroke:`${0.3*U}px ${th.fg}`, opacity:.2, right:(-2*U)+'px', bottom:(-7*U)+'px'});
+    g.textContent = card.ghost; card.ghostEl = g;
+  }
+
+  if (card.end){ buildEnd(card, el, th); return; }
+
+  const body = $('div', 'body', el); card.bodyEl = body;
+  const pad = (WIDE ? 7 : 5) * U;
+  if (card.label){
+    const lb = $('div', 'label', body, {position:'absolute', left:pad+'px', top:(pad + 4*U)+'px', fontSize:(2.3*U)+'px', color:th.fg});
+    if (card.label.dot) $('span', 'dot', lb, {background: card.label.dot});
+    const chip = $('span', 'chip', lb, {background: th.fg, color: th.bg}); chip.textContent = card.label.t;
+    card.labelEl = lb;
+  }
+  const L = $('div', 'lines', body); card.linesEl = L;
+  const lines = card.lines.map(l => typeof l === 'string' ? {t:l} : l);
+  const maxW = W - 2*pad;
+  const maxH = (card.sub || card.logo ? 0.6 : 0.7) * H * (WIDE ? 0.84 : 1);
+  const sizes = fitLines(lines, maxW, maxH, H * (PORTRAIT ? 0.42 : 0.7));
+  card.lineEls = lines.map((l, i) => {
+    const d = $('div', 'ln', L, {fontSize: sizes[i]+'px', color: col(l.c, th)});
+    if (l.outline){ d.style.color = 'transparent'; d.style.webkitTextStroke = `${0.35*U}px ${col(l.c, th)}`; }
+    const tx = $('span', 'txt', d); tx.textContent = l.t;
+    if (l.strike !== undefined){ l.strikeEl = $('div', 'strike', tx, {background: th.fg}); }
+    l.el = d; l.txt = tx; return l;
+  });
+  card.lineObjs = lines;
+  if (card.sub){
+    const s = $('div', 'sub', body, {fontSize:(2.6*U)+'px', color: th.fg, marginTop:(3.2*U)+'px'});
+    s.textContent = card.sub.t; card.subEl = s;
+    // shrink if too wide
+    const w = s.getBoundingClientRect().width; if (w > maxW) s.style.fontSize = (2.6*U*maxW/w)+'px';
+  }
+  if (card.logo){
+    const lg = $('img', null, body, {width: Math.min(maxW*0.78, 70*U)+'px', marginTop:(4*U)+'px'}); lg.src = 'assets/img/at-logo-white.png';
+    card.logoEl = lg;
+  }
+}
+
+function buildEnd(card, el, th){
+  const pad = (WIDE ? 7 : 6) * U;
+  const box = $('div', null, el, {position:'absolute', left:pad+'px', right:pad+'px', bottom:(pad + 3*U)+'px'});
+  card.endBox = box;
+  const tag = $('div', 'label', box, {fontSize:(2.5*U)+'px', marginBottom:(2.2*U)+'px'});
+  const chip = $('span', 'chip', tag, {background:C.red, color:C.white}); chip.textContent = '#NOROBOTWORK';
+  card.endTag = tag;
+  const maxW = (WIDE ? 0.55 : 1) * (W - 2*pad);
+  const names = [{t:'MATT'},{t:'MONIHAN'}];
+  const sizes = fitLines(names, maxW, H*0.42, H*0.3);
+  // both lines at the smaller size so the name reads as one block
+  const s = Math.min(...sizes);
+  card.endName = names.map(n => { const d = $('div', 'ln', box, {fontSize:s+'px', color:C.white}); d.textContent = n.t; return d; });
+  const info = [
+    {t:'AUTOMATION TACTICS · AI ADOPTION', c:C.white},
+    {t:'MATTMONIHAN.COM', c:C.blue, big:true},
+    {t:'LINKEDIN.COM/IN/MATTMONIHAN', c:C.white},
+  ];
+  card.endInfo = info.map(i => {
+    const d = $('div', 'sub', box, {fontSize:((i.big?3.6:2.4)*U)+'px', color:i.c, marginTop:(1.5*U)+'px', background: i.big ? C.white : 'transparent', display:'inline-block', padding: i.big ? `${0.4*U}px ${0.9*U}px` : '0'});
+    d.textContent = i.t;
+    const wrap = $('div', null, box); wrap.appendChild(d); return wrap;
+  });
+}
+
+// ---------- HUD ----------
+const hudEls = {};
+function buildHud(){
+  const pad = (WIDE ? 3 : 3.2) * U, fs = 1.9*U;
+  hud.style.fontSize = fs + 'px';
+  hudEls.tl = $('div', null, hud, {left:pad+'px', top:pad+'px'});
+  hudEls.tl.innerHTML = 'MATT MONIHAN <span style="opacity:.55">/ PORTFOLIO 2026</span>';
+  hudEls.tr = $('div', null, hud, {right:pad+'px', top:pad+'px', textAlign:'right'});
+  hudEls.bl = $('div', null, hud, {left:pad+'px', bottom:pad+'px'});
+  hudEls.bl.textContent = 'MATTMONIHAN.COM';
+  hudEls.br = $('div', 'pips', hud, {right:pad+'px', bottom:pad+'px', textAlign:'right'});
+  hudEls.brTxt = $('span', null, hudEls.br, {width:'auto', height:'auto', border:'0', margin:'0', verticalAlign:'0'});
+  hudEls.pips = [0,1,2,3].map(() => $('span', null, hudEls.br));
+  prog.style.height = (0.55*U) + 'px';
+}
+
+// ---------- per-frame render ----------
+function activeCard(beat){ let a = CARDS[0]; for (const c of CARDS) if (beat >= c.k) a = c; return a; }
+let current = null;
+
+function render(t){
+  t = clamp(t, 0, DUR - 1e-6);
+  const beatF = t / P, beat = Math.floor(beatF), dtB = t - beat*P;   // time since last beat
+  const card = activeCard(beatF);
+  const th = card.th_;
+  const tc = t - card.k * P;                                        // time since this card started
+  if (current !== card){ if (current) current.el.classList.remove('on'); card.el.classList.add('on'); current = card; }
+
+  // --- beat energy ---
+  const inDrop = beat >= DROP && beat < 36;
+  const downbeat = inDrop && (beat - DROP) % 4 === 0;
+  const env = Math.exp(-dtB / 0.1);
+  const half = Math.exp(-Math.max(0, dtB - P/2) / 0.07) * (dtB >= P/2 ? 1 : 0);   // offbeat hat
+  let amp = beat < DROP ? 0.45 : downbeat ? 1.6 : 0.9;
+  if (card.end) amp = 0.25;
+  if (card.blackout && tc > P - card.blackout) amp = 0;               // freeze before the drop
+
+  // --- camera: punch zoom + shake ---
+  const sx = (rnd(beat*3.1 + Math.floor(t*30)*0.7) - 0.5) * 2, sy = (rnd(beat*5.3 + Math.floor(t*30)*1.3) - 0.5) * 2;
+  const shake = amp * (env * 1.4 + half * 0.35) * U;
+  const zoom = 1 + amp * (0.045 * env + 0.012 * half);
+  const rot = amp * env * (rnd(beat*9.1) - 0.5) * 1.6;
+  cam.style.transform = `translate(${sx*shake}px, ${sy*shake}px) scale(${zoom}) rotate(${rot}deg)`;
+
+  // --- card entrance ---
+  const e = clamp(tc / 0.14, 0, 1), eo = easeOut(e);
+  let tf = '', clipGlitch = false;
+  switch (card.enter){
+    case 'punch': tf = `scale(${1.32 - 0.32*easeOutBack(e)})`; break;
+    case 'zoom':  tf = `scale(${0.55 + 0.45*easeOutBack(e)})`; break;
+    case 'slamL': tf = `translateX(${-70*(1-eo)}%) skewX(${22*(1-eo)}deg)`; break;
+    case 'slamR': tf = `translateX(${70*(1-eo)}%) skewX(${-22*(1-eo)}deg)`; break;
+    case 'glitch': clipGlitch = e < 1; tf = `translateX(${(rnd(Math.floor(t*30))-0.5)*14*(1-eo)}%)`; break;
+  }
+  if (card.linesEl){
+    card.linesEl.style.transform = tf;
+    // chromatic split on the letters, driven by the beat
+    const d = (0.25 + 1.3*env*amp + (1-eo)*2.2) * U * 0.5;
+    const shadow = `${-d}px 0 0 rgba(253,21,40,.85), ${d}px 0 0 rgba(46,92,255,.85)`;
+    const shadowOnBlue = `${-d}px 0 0 rgba(253,21,40,.85), ${d}px 0 0 rgba(0,0,0,.6)`;
+    card.lineObjs.forEach(l => { l.el.style.textShadow = th.bg === C.blue ? shadowOnBlue : shadow; });
+    card.linesEl.style.clipPath = clipGlitch ? glitchClip(t) : 'none';
+    // counters
+    card.lineObjs.forEach(l => {
+      if (l.count){ const [a,b,f] = l.count; const v = Math.round(a + (b-a)*easeOut(tc/0.26)); l.txt.textContent = f(v); }
+      if (l.strikeEl){ l.strikeEl.style.width = (106*easeOut((tc - l.strike*P)/0.09)) + '%'; }
+    });
+  }
+  if (card.labelEl){ card.labelEl.style.transform = `translateX(${-30*(1-eo)}px)`; card.labelEl.style.opacity = clamp(tc/0.05,0,1);
+    const dot = card.labelEl.querySelector('.dot'); if (dot) dot.style.opacity = (Math.floor(t*8) % 2) ? 1 : 0.15; }
+  if (card.subEl){
+    if (card.sub.type){ const n = Math.floor(clamp((tc - 0.08)/0.5, 0, 1) * card.sub.t.length); card.subEl.textContent = card.sub.t.slice(0, n) + (n < card.sub.t.length && Math.floor(t*12)%2 ? '█' : ''); }
+    card.subEl.style.opacity = clamp((tc - 0.06)/0.06, 0, 1);
+  }
+  if (card.logoEl) card.logoEl.style.opacity = clamp((tc - P*0.5)/0.05, 0, 1);
+  if (card.ghostEl) card.ghostEl.style.transform = `translateY(${(1-eo)*20*U}px)`;
+  if (card.marqRows) card.marqRows.forEach((r,i) => { const dir = i%2 ? 1 : -1; r.style.transform = `translateX(${dir*(t*18*U + env*4*U) - 40*U*(i%3)}px)`; });
+  if (card.streamRows) card.streamRows.forEach((r,i) => { const sp = (25 + 60*rnd(i*3.3)) * U; r.style.transform = `translateX(${-((t*sp + i*37*U) % (W*1.5))}px)`; });
+  if (card.shotEl) card.shotEl.style.transform = `rotate(${card.shot.rot}deg) scale(${1.05 + 0.08*tc})`;
+  if (card.photoEl){
+    const z = card.photo ? card.photo.zoom : [1.12, 1.0];
+    const span = card.n * P;
+    card.photoImg.style.transform = `scale(${z[0] + (z[1]-z[0])*clamp(tc/span,0,1) + 0.03*env*amp})`;
+  }
+  if (card.end) renderEnd(card, tc, t);
+
+  // --- blackout just before the drop ---
+  let black = card.blackout && tc > P - card.blackout ? 1 : 0;
+
+  // --- flash on each cut ---
+  let fl = 0, flc = C.white;
+  if (tc < 0.075) fl = (1 - tc/0.075) * 0.55;
+  if (card.hit && tc < 0.11){ fl = tc < 0.034 ? 1 : (1 - tc/0.11); flc = card.hit === 'blue' ? C.blue : C.white; }
+  if (card.strobe){ const s = Math.floor(tc / (P/4)); if (s % 2 === 1 && (tc % (P/4)) < 0.05) { fl = 0.9; flc = C.red; } }
+  flash.style.background = flc; flash.style.opacity = black ? 0 : fl;
+  cardsEl.style.opacity = black ? 0 : 1;
+
+  // --- grain + HUD ---
+  grain.style.backgroundImage = `url(${GRAIN[Math.floor(t*30) % GRAIN.length]})`;
+  const hc = black ? C.white : th.hud;
+  hud.style.color = hc; hud.style.opacity = card.end ? 0 : 0.8;
+  const ss = t.toFixed(2).padStart(5, '0');
+  hudEls.tr.innerHTML = `<span style="opacity:.55">110 BPM</span>&nbsp;&nbsp;00:${ss}`;
+  hudEls.brTxt.textContent = `${String(Math.min(beat+1, NB)).padStart(2,'0')}/${NB}`;
+  hudEls.pips.forEach((p,i) => p.classList.toggle('lit', i === beat % 4));
+  prog.style.width = (100 * t / DUR) + '%'; prog.style.background = card.end ? C.blue : hc;
+
+  // --- fade out ---
+  fade.style.opacity = clamp((t - (DUR - 0.4)) / 0.38, 0, 1);
+}
+
+function glitchClip(t){
+  // horizontal band cut-out: a few rows of the text shifted out of frame
+  const f = Math.floor(t*30), a = rnd(f)*80, b = a + 6 + rnd(f+1)*18;
+  return `polygon(0 0, 100% 0, 100% ${a}%, 0 ${a}%, 0 ${b}%, 100% ${b}%, 100% 100%, 0 100%)`;
+}
+
+function renderEnd(card, tc, t){
+  const inAt = (i) => clamp((tc - i*P*0.5) / 0.12, 0, 1);   // i counts half-beats
+  card.endTag.style.opacity = inAt(0) > 0 ? 1 : 0;
+  card.endTag.style.transform = `translateX(${-40*(1-easeOut(inAt(0)))}px)`;
+  card.endName.forEach((n, i) => { const e = easeOut(inAt(i*0.5)); n.style.transform = `translateY(${(1-e)*40}px)`; n.style.opacity = e > 0 ? 1 : 0;
+    n.style.textShadow = `${-0.4*U*(1-e)}px 0 0 rgba(253,21,40,.9), ${0.4*U*(1-e)}px 0 0 rgba(46,92,255,.9)`; });
+  card.endInfo.forEach((d, i) => { const e = easeOut(inAt(1.5 + i*0.5)); d.style.transform = `translateX(${(1-e)*-50}px)`; d.style.opacity = e; });
+}
+
+window.ready = (async () => {
+  await document.fonts.load("100px 'Bebas'"); await document.fonts.load("800 20px 'Mono'"); await document.fonts.load("500 20px 'Mono'");
+  await document.fonts.ready;
+  buildHud();
+  CARDS.forEach(build);
+  await Promise.all([...document.images].map(i => i.decode().catch(() => null)));
+  render(+q.get('t') || 0);
+  return {W, H, DUR, fonts: document.fonts.check("100px 'Bebas'")};
+})();
+</script>
+</body>
+</html>
